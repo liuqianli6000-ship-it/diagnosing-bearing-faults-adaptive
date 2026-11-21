@@ -1,0 +1,21 @@
+{
+  "version": "mfd-tool-lite-v1",
+  "default_profile": "default",
+  "profiles": {
+    "default": {
+      "max_harmonics": 5,
+      "tolerance_resolution_multiplier": 2.5,
+      "minimum_tolerance_hz": 0.5,
+      "speed_relative_uncertainty": 0.005,
+      "geometry_relative_uncertainty": 0.005,
+      "slip_relative_uncertainty_by_family": {
+        "BPFI": 0.01,
+        "BPFO": 0.01,
+        "BSF": 0.02
+      },
+      "min_relative_amplitude": 0.1,
+      "min_robust_z": 4.5,
+      "background_radius_bins": 12
+    }
+  }
+}

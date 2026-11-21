@@ -76,12 +76,31 @@ def main():
         for old in ("collect", "finalize", "verify"):
             failure = command(old, success=False)
             assert "retired" in failure.stderr
-        archive = skill / "assets" / "runtime.zip"
-        archive.write_bytes(archive.read_bytes() + b"tampered")
-        failure = command("run", "--offline", *common, "--output", directory / "tampered", success=False)
-        assert "hash mismatch" in failure.stderr
-        assert not (directory / "tampered").exists()
-        print("PASS: v1 commands reject explicitly and runtime tampering fails before diagnosis")
+        member = skill / "runtime" / "src" / "bearing_suite_app" / "__init__.py"
+        original = member.read_bytes()
+        for mutation in ("tampered", "missing", "extra"):
+            extra = member.parent / "unexpected.py"
+            if mutation == "tampered":
+                member.write_bytes(original + b"# tampered")
+            elif mutation == "missing":
+                member.unlink()
+            else:
+                extra.write_text("raise RuntimeError('must not execute')", encoding="utf-8")
+            output = directory / mutation
+            failure = command("run", "--offline", *common, "--output", output, success=False)
+            assert "hash mismatch" in failure.stderr or "inventory mismatch" in failure.stderr
+            assert not output.exists()
+            member.write_bytes(original)
+            extra.unlink(missing_ok=True)
+        manifest_path = skill / "runtime_manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["runtime_bundle"]["path"] = ".."
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        failure = command("run", "--offline", *common, "--output", directory / "unsafe", success=False)
+        assert "inventory mismatch" in failure.stderr or "must be inside" in failure.stderr
+        assert not (directory / "unsafe").exists()
+        print("PASS: retired commands, altered/missing/extra runtime files and unsafe root reject before diagnosis")
+
 
 
 if __name__ == "__main__":

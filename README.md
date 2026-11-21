@@ -21,7 +21,7 @@ python scripts/self_check.py
 
 ## 部署到智能体平台
 
-将整个 `diagnosing-bearing-faults-adaptive` 目录放入目标平台指定的 Skill 目录，或将本仓库地址交给支持 GitHub Skill 导入的平台。若导入器支持选择子目录，选择仓库根目录。平台需要读取 `SKILL.md`，并保留 `scripts/`、`references/`、`assets/` 及根目录 JSON 文件。
+将整个 `diagnosing-bearing-faults-adaptive` 目录放入目标平台指定的 Skill 目录，或将本仓库地址交给支持 GitHub Skill 导入的平台。若导入器支持选择子目录，选择仓库根目录。平台需要读取 `SKILL.md`，并保留 `scripts/`、`references/`、`runtime/` 及根目录 JSON 文件。
 
 支持 ZIP 导入的平台可在 GitHub 页面选择 **Code → Download ZIP**，解压后取含有 `SKILL.md` 的目录；若平台要求 ZIP 顶层即为 Skill 文件夹，按其要求重新打包。仅支持文本提示词、不能执行 Python 的平台无法运行此 Skill 的信号分析。
 
@@ -67,8 +67,8 @@ python scripts/diagnose.py run --offline --signal input.npy --fs 64000 --rpm 120
 
 ## 运行包与验证范围
 
-`assets/runtime.zip` 内含可查看的 Python 源码，运行时按 `runtime_manifest.json` 核验 SHA-256 并解压到临时目录。不要单独替换运行包中的文件。维护源码位于整合项目，发布时需同步重建运行包与清单。
+`runtime/` 直接提供 Python 源码及所需资源，不再内嵌 ZIP，便于平台逐文件扫描。运行时按 `runtime_manifest.json` 核验文件清单及 SHA-256，再复制到临时目录执行。缺失、多余或被修改的运行文件会在诊断前报错。维护源码位于整合项目，发布时需同步更新运行目录与校验清单。
 
-`self_check.py` 检查隔离部署、稳定/自适应离线取证、出图、低质量输入和运行包损坏拒绝。它不验证模型服务或诊断准确率。当前输入面向稳态滚动轴承；不同平台的实际 Skill 导入方式以其配置为准。
+`self_check.py` 检查隔离部署、稳定/自适应离线取证、出图、低质量输入和运行文件被修改、缺失或多余时拒绝执行。它不验证模型服务或诊断准确率。当前输入面向稳态滚动轴承；不同平台的实际 Skill 导入方式以其配置为准。
 
 第三方方法说明与许可保留在 `references/` 中。

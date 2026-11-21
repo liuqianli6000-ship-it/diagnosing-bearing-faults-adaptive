@@ -19,7 +19,7 @@
     "离线或专家判断未完成时保存数值证据，结论字段为空。"
   ],
   "standalone": [
-    "交付整个 skill 文件夹，运行已校验 runtime.zip 内的 bearing_suite_app。",
+    "交付整个 skill 文件夹，运行已校验 runtime/ 目录内的 bearing_suite_app。",
     "默认离线；--offline 显式禁用模型，--provider 显式选择使用已有服务配置。",
     "旧 v1 collect/finalize/verify 协议不兼容，明确报迁移错误。",
     "validate 检查输出结构及字段一致性。"
