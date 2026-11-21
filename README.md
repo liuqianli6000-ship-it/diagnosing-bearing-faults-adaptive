@@ -1,6 +1,6 @@
 # 滚动轴承振动分析与故障诊断 Skill
 
-可独立部署的 Agent Skill，入口为根目录的 [SKILL.md](SKILL.md)。包含 Python 运行包、诊断与评审规则，以及 10 条 BJTU 波形示例；无需安装原始智能体项目。
+可独立部署的 Agent Skill，入口为根目录的 [SKILL.md](SKILL.md)。包含 Python 运行包与诊断、评审规则；不附带波形或样本清单。分析时使用用户自行提供的数据，无需安装原始智能体项目。
 
 ## 安装
 
@@ -21,7 +21,7 @@ python scripts/self_check.py
 
 ## 部署到智能体平台
 
-将整个 `diagnosing-bearing-faults-adaptive` 目录放入目标平台指定的 Skill 目录，或将本仓库地址交给支持 GitHub Skill 导入的平台。若导入器支持选择子目录，选择仓库根目录。平台需要读取 `SKILL.md`，并保留 `scripts/`、`references/`、`assets/`、`examples/` 及根目录 JSON 文件。
+将整个 `diagnosing-bearing-faults-adaptive` 目录放入目标平台指定的 Skill 目录，或将本仓库地址交给支持 GitHub Skill 导入的平台。若导入器支持选择子目录，选择仓库根目录。平台需要读取 `SKILL.md`，并保留 `scripts/`、`references/`、`assets/` 及根目录 JSON 文件。
 
 支持 ZIP 导入的平台可在 GitHub 页面选择 **Code → Download ZIP**，解压后取含有 `SKILL.md` 的目录；若平台要求 ZIP 顶层即为 Skill 文件夹，按其要求重新打包。仅支持文本提示词、不能执行 Python 的平台无法运行此 Skill 的信号分析。
 
@@ -29,15 +29,15 @@ python scripts/self_check.py
 
 ## 运行示例
 
-以下命令均从 Skill 根目录执行。每次运行使用新的输出目录。
+以下命令均从 Skill 根目录执行。先准备自己的 `input.npy` 和 `geometry.json`，采样率、转速、单位及几何参数须与实际数据一致。每次运行使用新的输出目录。
 
 ```bash
-python scripts/diagnose.py run --offline --manifest examples/metadata.jsonl --index 1 --output outputs/sample-2
-python scripts/diagnose.py validate outputs/sample-2/result.json
-python scripts/diagnose.py run --offline --manifest examples/metadata.jsonl --index 9 --domain time --output outputs/sample-10-time
+python scripts/diagnose.py run --offline --signal input.npy --fs 64000 --rpm 1200 --unit g --geometry geometry.json --output outputs/my-signal
+python scripts/diagnose.py validate outputs/my-signal/result.json
+python scripts/diagnose.py run --offline --signal input.npy --fs 64000 --unit g --domain time --output outputs/my-signal-time
 ```
 
-索引为 0—9，对应 BJTU 000001—000010。示例用于演示流程；清单只包含输入参数，不提供诊断标签。`--domain` 可选 `time`、`frequency`、`time_frequency`，也可同时传入多个域。
+数据建议放在仓库外；仓库已忽略 `data/`、`examples/`、NPY 波形和输出目录，避免误提交。`--domain` 可选 `time`、`frequency`、`time_frequency`，也可同时传入多个域。
 
 完整取证生成时域、幅值频谱、STFT 时频及多频带包络图，并在输出目录保存 `result.json`。离线完整取证的结论字段为空，由平台模型依据本次证据进行判读。
 
@@ -46,7 +46,7 @@ python scripts/diagnose.py run --offline --manifest examples/metadata.jsonl --in
 复制 `.env.example` 为 `.env`，填入选用服务的 API Key 和模型名，再显式传入 `--provider` 和 `--env-file`：
 
 ```bash
-python scripts/diagnose.py run --provider qwen --env-file .env --manifest examples/metadata.jsonl --index 1 --output outputs/sample-2-qwen
+python scripts/diagnose.py run --provider qwen --env-file .env --signal input.npy --fs 64000 --rpm 1200 --unit g --geometry geometry.json --output outputs/my-signal-qwen
 ```
 
 支持 `qwen`、`deepseek`、`openai`。模型调用依次执行专家判读、独立评审和说明修订。`.env` 已被 Git 忽略；平台模型直接判读离线证据时无需另配脚本的模型密钥。脚本默认稳定模式，自适应处理使用 `--adaptive`。

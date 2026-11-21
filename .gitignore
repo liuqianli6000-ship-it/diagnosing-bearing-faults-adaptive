@@ -8,3 +8,7 @@ __pycache__/
 outputs/
 demo-*/
 .DS_Store
+data/
+examples/
+*.npy
+*.npz

@@ -13,16 +13,16 @@ description: 对滚动轴承振动波形做时域、频域、时频分析或故�
 
 ## 执行
 
-输入为样本清单或用户提供的单通道 NPY。直接输入波形时提供 `--signal`、`--fs` 和 `--unit g` 或 `--unit a.u.`。完整诊断同时需要 `--rpm` 和轴承几何或特征频率比 JSON，经 `--geometry` 传入。部署时复制整份 Skill 目录，用 Python 3.10 或以上版本从根目录运行：
+本 Skill 不附带数据。输入为用户提供的样本清单或单通道 NPY。直接输入波形时提供 `--signal`、`--fs` 和 `--unit g` 或 `--unit a.u.`。完整诊断同时需要 `--rpm` 和轴承几何或特征频率比 JSON，经 `--geometry` 传入。部署时复制整份 Skill 目录，用 Python 3.10 或以上版本从根目录运行：
 
 ```powershell
 python -m pip install -r scripts/requirements.txt
-python scripts/diagnose.py run --offline --manifest examples/metadata.jsonl --index 1 --output demo-evidence
+python scripts/diagnose.py run --offline --signal input.npy --fs 64000 --rpm 1200 --unit g --geometry geometry.json --output demo-evidence
 python scripts/diagnose.py validate demo-evidence/result.json
-python scripts/diagnose.py run --offline --manifest examples/metadata.jsonl --index 1 --domain time --output demo-time
+python scripts/diagnose.py run --offline --signal input.npy --fs 64000 --unit g --domain time --output demo-time
 ```
 
-每次指定新的输出目录。模型配置由环境变量或 `--env-file` 提供。
+运行前准备自己的 `input.npy` 和 `geometry.json`，并将上述采样率、转速和单位替换为实际值。每次指定新的输出目录。模型配置由环境变量或 `--env-file` 提供。
 
 - **由脚本调用模型**时，使用 `--provider qwen`、`--provider deepseek` 或 `--provider openai` 替换 `--offline`。脚本依次执行诊断、独立评审、说明修订和引用校验。
 - **使用平台模型**时，先用 `--offline` 提取证据，再按[专家判读规则](references/expert-diagnosis.md)读取 `result.json` 中的 `evidence_chain`。平台支持独立模型调用时，按[评审规则](references/expert-review.md)复核，并由诊断专家修订说明。修订保持初稿的类别。

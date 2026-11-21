@@ -1,4 +1,4 @@
 interface:
   display_name: "滚动轴承振动分析与故障诊断"
   short_description: "从滚动轴承振动波形提取包络倍频证据，按领域知识判断故障并说明判断依据"
-  default_prompt: "用 $diagnosing-bearing-faults-adaptive 对随附的 BJTU 2 号样本取证，按诊断判据给出结论和依据。"
+  default_prompt: "用 $diagnosing-bearing-faults-adaptive 对我提供的振动波形取证，按诊断判据给出结论和依据。"
